@@ -1,23 +1,81 @@
 """
-You are given an array A consisting of N positive integers.
-Consider subarrays of A, with at least two elements, whose first and last elements have the same value.
-Your task is to find the largest possible sum of such a subarray.
-For example, for array A = [1,3,6,1,6,6,9,9], the following subarrays meet the requirements:
-* [1,3,6,1]: first and last elements are equal to 1; the sum of the subarray is 11
-* [6,1,6]: first abd last elements are equal to 6; the sum of the subarray is 13
-* [6,1,6,6]: first and last elements are equal to 6; the sum of the subarray is 19
-* [6,6]: first and last elements are equal to 6; the sum of the subarray is 12
-* [9,9]: first and last elements are equal to 9; the sum of the subarray is 18
-The subarray with the largest sum is [6,1,6,6] and its sum is 19.
-write a function:
-    def solution(A):
-that, given an array A of N positive integers, return the largest sum of a subarray whose first and last elements have the same value.
-If there is no such subarray, return -1.
+Battleships is a game played on a rectangular board.
+Your are given a representation of such a board of size N(height)xM(width) with information about the locations of the ships.
+The board is given as an array B, whose every element is a string that corresponds to one row of the game board.
+Each character of each string represents a cell of the board and is eigher:
+* a '#' character, marking a part of a ship; or
+* a '-' character, representing an empty cell.
+Two cells that share a side and have a value of # are parts of the same ship.
+Cell(X, Y) shares a side with cells(X,Y-1), (X,Y+1), (X-1, Y) and (X+1, Y)
+In the Battleships game there are three types of ships:
+Patrol Boats of size=1
+Submarines of size=2, which come in two shapes:
+Destroyers of size=3, which come in six shapes:
+Your tasks is to find the number of ships of each type occurring on the board
+For example, on the board represented by B=[".##.#", "#.#..", "#...#", "#.##."],
+there are two patrol boats(marked on the image below as 'P'), one submarine('S') and two destroyers('D').
+Write a function:
+    def solution(B):
+that, given an array B consisting of N strings of length M each, returns an array R of three integers, such that:
+* R[0] represents the number of Patrol Boats,
+* R[1] represents the number of Submarines,
+* R[2] represnets the number of Destroyers
 Examples:
-1. Given A = [1,3,6,1,6,6,9,9], the function should return 19, as explained above.
-2. Given A = [5,1,4,3], function should return -1. There is no subarray satisfying the requirements
-3. Given A = [2,2,2,3,2,3] function should return 11. The subarray with the largest sum is [2,2,2,3,2]
-WRite an efficient algorithm for the following assumptions:
-* N is an integer within the range[2,..100,000];
-* each element of array A is an integer within the range[1..10,000]
+    1. Given B=[".##.#", "#.#..", #..#", "#.##."], the function should return [2,1,2] as explained above.
+    2. Given B = [".#..#", "##..#", "...#."], the function should return [1,1,1]
+    3. Given B= ["##.", "#.#", ".##"], the function should return [0,0,2]
+    4. Given B= [".#..#", "##..#", "...#."], the function should return [1,1,1].
+    5. Given B = ["##.","#.#", ".##"], the function should return [0,0,2].
+    6. Given B = ["...", "...", "..."], the function should return [0,0,0].
+Assume that:
+*   N is an integer within the range[1..100]
+*   All strings in B are of the same length M from the range[1..100]
+*   Every string in B consists only of the following characters: "." and/or "#"
+*   Every ship on the board is either a Boat(size 1), a Submarine(size 2) or a Destroyer(size 3)
+In your solution, focus on correctness. The performance of your solution will not be the focus of the assessment.
 """
+from collections import defaultdict
+from functools import partial
+
+def solution(B):
+    rows = len(B)
+    cols = len(B[0])
+    visit = set()
+    level = defaultdict(partial(defaultdict, str))
+    result = [0,0,0]
+
+    def count_level(label):
+        count = 0
+        for i in level.keys():
+            for j in level[i].keys():
+                if level[i][j] == label:
+                    count += 1
+        return count
+
+    def dfs(B, i, j, label):
+        directions = [[-1, 0], [0, 1], [1, 0], [0, -1]]
+        for dir in directions:
+            x, y = i + dir[0], j + dir[1]
+            if 0<=x<rows and 0<=y<cols and B[x][y]=="#" and (x, y) not in visit:
+                visit.add((x,y))
+                level[x][y] = label
+                dfs(B, x, y, "D")
+
+    for i in range(rows):
+        for j in range(cols):
+            if B[i][j] == "#" and (i, j) not in visit:
+                visit.add((i, j))
+                level[i][j] = "P"
+                dfs(B, i, j, "S")
+
+    result[2] = count_level("D")
+    result[1] = count_level("S") - result[2]
+    p = count_level("P") - result[2] - result[1]
+    result[0] = p if p>0 else 0
+    return result
+
+
+if __name__ == "__main__":
+    B = [".##.#", "#.#..", "#...#", "#.##."]
+    result = solution(B)
+    print(result)
