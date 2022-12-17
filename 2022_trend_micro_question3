@@ -37,10 +37,13 @@ In your solution, focus on correctness. The performance of your solution will no
 from collections import defaultdict
 from functools import partial
 
+# dfs solutions
 def solution(B):
     rows = len(B)
     cols = len(B[0])
+    # visit存放走過的路，可以只用level來存放，下次再省略
     visit = set()
+    # level存放走過的深度
     level = defaultdict(partial(defaultdict, str))
     result = [0,0,0]
 
@@ -53,6 +56,9 @@ def solution(B):
         return count
 
     def dfs(B, i, j, label):
+        """
+        用遞迴方式來實作
+        """
         directions = [[-1, 0], [0, 1], [1, 0], [0, -1]]
         for dir in directions:
             x, y = i + dir[0], j + dir[1]
@@ -73,6 +79,65 @@ def solution(B):
     p = count_level("P") - result[2] - result[1]
     result[0] = p if p>0 else 0
     return result
+
+
+if __name__ == "__main__":
+    B = [".##.#", "#.#..", "#...#", "#.##."]
+    result = solution(B)
+    print(result)
+    
+# bfs solution
+from collections import defaultdict, deque
+from functools import partial
+
+def solution(B):
+    result = [0,0,0]
+    rows = len(B)
+    cols = len(B[0])
+    visit = set()
+    level = defaultdict(partial(defaultdict, str))
+
+    def count_level(label):
+        count = 0
+        for i in level.keys():
+            for j in level[i].keys():
+                if level[i][j] == label:
+                    count += 1
+        return count
+
+    def bfs(B, i, j):
+        """
+        用一個QUEUE來實作，用QUEUE去存放沒走過且符合條件的點
+        """
+        q = deque()
+        q.append((i, j))
+        directions = [[-1, 0], [0, 1], [1, 0], [0, -1]]
+        count = 0
+        while len(q) > 0:
+            temp = q.popleft()
+            for dir in directions:
+                x, y = temp[0]+dir[0], temp[1]+dir[1]
+                if 0 <= x < rows and 0 <= y < cols and B[x][y] == "#" and (x, y) not in visit:
+                    visit.add((x, y))
+                    if count == 0:
+                        level[x][y] = "S"
+                    else:
+                        level[x][y] = "D"
+                    q.append((x,y))
+                    count += 1
+
+    for i in range(rows):
+        for j in range(cols):
+            if B[i][j] == "#" and (i, j) not in visit:
+                visit.add((i, j))
+                level[i][j] = "P"
+                bfs(B, i, j) 
+    result[2] = count_level("D")
+    result[1] = count_level("S") - result[2]
+    p = count_level("P") - result[2] - result[1]
+    result[0] = p if p > 0 else 0
+    return result
+
 
 
 if __name__ == "__main__":
