@@ -21,3 +21,49 @@ WRite an efficient algorithm for the following assumptions:
 * N is an integer within the range[2,..100,000];
 * each element of array A is an integer within the range[1..10,000]
 """
+from collections import Counter
+from itertools import accumulate
+
+def solution(A):
+    # 紀錄每個字元的頻率
+    freq = Counter(A)
+    # 沒有重複值就返回-1
+    if max(freq.keys()) == 1:
+        return -1
+    # 找出每個重複字元的所有指標
+    index = {}
+    for i, v in enumerate(A):
+        if v in freq.keys() and freq[v] != 1:
+            index[v] = []
+    for i, v in enumerate(A):
+        if v in freq.keys() and freq[v] != 1:
+            index[v].append(i)
+    print(index)
+    # 計算重複字元的最大長度和，不能用sum，要用prefixsum
+    #-----------------------------------------------------
+    #  A       | 1   | 3  |6   | 1  |6   | 6   |9  |9    |
+    #-----------------------------------------------------
+    # total    | 1   | 4  | 10 | 11 | 17 | 23 | 32 | 41  |
+    #-----------------------------------------------------
+    # index    | 1        | 6                 | 9        |
+    #-----------------------------------------------------
+    # first    | 0        | 3                 | 6        |
+    #-----------------------------------------------------
+    # last     | 4        | 5                 | 7        |
+    #-----------------------------------------------------
+    # data_sum | 11-0=11  |23-4=19            | 41-23=18 |
+    #-----------------------------------------------------
+    total = list(accumulate(A))
+    result = {}
+    for i in index.keys():
+        first = index[i][0]
+        last = index[i][-1]
+        data_sum = total[last]
+        if first > 0:
+            data_sum = total[last] - total[first - 1]
+        result[i] = data_sum
+    return max(result.values())
+
+if __name__ == "__main__":
+    A = [1,3,6,1,6,6,9,9]
+    solution(A)
