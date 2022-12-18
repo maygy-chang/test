@@ -1,0 +1,35 @@
+"""
+There are two wooden sticks of lengths A and B respectively. Each of them can be cut into shorter sticks of interger lengths.
+Our goal is to contsruct the largest possible square. Inorder to do this, we want to cut the sticks in such a way as to achieve 
+four stacks of the same length (note that there can be come leftover pieces). What is the longest side of square that we can achieve?
+write a function:
+    def solution(A, B)
+that, given two integers A, B, returns the side length of the largest square that we can obtain.
+If it is not possible to create any square, the function should return 0.
+Examples:
+1. Given A=10, B=21, the function should return 7. We can split the second tick into three sticks of length 7 and shorten the first stick 
+the first stick by 3.
+2. Given A=13, B=11, the function should return 5. We can cur two sticks of length 5 from each of the given sticks.
+3. Given A=2, B=1, the function should return 0. It is not possible to make any square from the given sticks.
+4. Given A=1, B=8, the function should return 2. We can cut stick B into four parts.
+Write an efficient algorithm for the following assumptions:
+A and B are integers within the range[1..1,000,000,000]
+"""
+def solution(A, B):
+    num_side = 4
+    max_possible_length = int((A+B)/num_side)
+    max_length = 0
+    for i in range(max_possible_length, -1, -1):
+        if i > 0:
+            num_possible_side = int(A/i) + int(B/i)
+            if num_possible_side >= num_side:
+                max_length = i
+                break
+    return max_length
+
+
+if __name__ == '__main__':
+    A = 10
+    B = 21
+    result = solution(A, B)
+    print(result)
