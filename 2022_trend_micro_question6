@@ -1,0 +1,56 @@
+"""
+Write a function:
+  def solution(S)
+that, given a string S consisting of N lowercase English letters, 
+returns the length of the longest substring in which every letter occurs an even number of times.
+A substring is defined as a contiguous segment of a string.
+If no such substring exists, return 0.
+Examples:
+1. Given S="bdaaadadb", the function should return 6. Substrings in which every letter occurs an even number of times are "aa". "adad". "daaada", "aaadad".
+The length of the longest of them is 6
+bdaaadadb
+2. Given S="abacb", the function should return 0. There is no non-empty substring in which every letter occurs an even number of times.
+3. Given S="zthtzh", the function should return 6. Every letter in the whole string occurs an even number of times.
+Write an efficient algorithm for the following assumptions:
+* N is an integer within the range[1..100,000];
+* String S consists only of lowercase letter(a-z)
+"""
+from collections import Counter
+
+def check_odds(data):
+    odd_list = []
+    for c, v in Counter(data).items():
+        if v % 2 == 1:
+            odd_list.append(c)
+    return odd_list
+
+
+def solution(S):
+    freq = Counter(S)
+    max_length = 0
+    print(freq)
+    output = {}
+    left = 0
+    for left in range(len(S)):
+        if freq[S[left]] > 1:
+            data = S[left:]
+            odd_list = check_odds(data)
+            if odd_list:
+                for right in range(len(S)-1, 1, -1):
+                    data = S[left:right]
+                    odd_list = check_odds(data)
+                    if not odd_list and data:
+                        output[data] = len(data)
+            else:
+                output[data] = len(data)
+    if output:
+        max_length = max(output.values())
+    return max_length
+
+
+if __name__ == '__main__':
+    S = "bdaaadadb"
+    S = "abacb"
+    S = "zthtzh"
+    result = solution(S)
+    print(result)
