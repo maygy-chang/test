@@ -54,3 +54,43 @@ if __name__ == '__main__':
     S = "zthtzh"
     result = solution(S)
     print(result)
+
+
+# Python program for the above approach
+# Function to count substrings having
+# even frequency of each character
+def subString(s, n):
+    # Stores the total
+    # count of substrings
+    count = 0
+    # Traverse the range [0, N]:
+    for i in range(n):
+        # Traverse the range [i + 1, N]
+        for len in range(i + 1, n + 1):      
+            # Stores the substring over
+            # the range of indices [i, len]
+            test_str = (s[i: len])
+            # Stores the frequency of characters
+            res = {}
+            # Count frequency of each character
+            for keys in test_str:
+                res[keys] = res.get(keys, 0) + 1
+            flag = 0
+            # Traverse the dictionary
+            for keys in res:
+                # If any of the keys
+                # have odd count
+                if res[keys] % 2 != 0:
+                    flag = 1
+                    break
+            # Otherwise
+            if flag == 0:
+                count += 1
+    # Return count
+    return count
+ 
+ 
+# Driver Code
+S = "abbaa"
+N = len(S)
+print(subString(S, N))
